@@ -26,7 +26,7 @@ public class latihan1 {
             System.out.print("Masukkan Opsi Pilihan: ");
             
             int choice = getInputInt(scanner);
-            scanner.nextLine(); 
+            scanner.nextLine(); // Consume newline
             
             switch (choice) {
                 case 1: insert(scanner); break;
@@ -45,7 +45,7 @@ public class latihan1 {
                 return scanner.nextInt();
             } catch (InputMismatchException e) {
                 System.out.println("Input yang dimasukkan tidak valid. Tolong masukkan input yang benar.");
-                scanner.next(); 
+                scanner.next(); // Clear invalid input
             }
         }
     }
@@ -66,7 +66,7 @@ public class latihan1 {
             connect();
             System.out.print("Masukkan ID Buku: ");
             int id = getInputInt(scanner);
-            scanner.nextLine(); 
+            scanner.nextLine(); // Consume newline
             
             System.out.print("Judul Buku: ");
             String judul_buku = scanner.nextLine();
@@ -74,7 +74,7 @@ public class latihan1 {
             int tahun = getInputInt(scanner);
             System.out.print("Stok: ");
             int stok = getInputInt(scanner);
-            scanner.nextLine(); 
+            scanner.nextLine(); // Consume newline
             System.out.print("Penulis: ");
             String penulis = scanner.nextLine();
             
@@ -87,7 +87,13 @@ public class latihan1 {
             ps.setString(5, penulis);
             ps.execute();
             
-            System.out.println("Data telah sukses dimasukkan ke database .");
+            sql = "INSERT INTO penulis (id, nama_penulis) VALUES (?, ?)";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ps.setString(2, penulis);
+            ps.execute();
+            
+            System.out.println("Data telah sukses dimasukkan ke database.");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -100,7 +106,7 @@ public class latihan1 {
             connect();
             System.out.print("Masukkan ID Buku yang ingin diupdate: ");
             int id = getInputInt(scanner);
-            scanner.nextLine(); 
+            scanner.nextLine(); // Consume newline
             
             String sql = "SELECT * FROM buku WHERE id = ?";
             ps = conn.prepareStatement(sql);
@@ -140,6 +146,12 @@ public class latihan1 {
                 ps.setInt(5, id);
                 ps.execute();
                 
+                sql = "UPDATE penulis SET nama_penulis = ? WHERE id = ?";
+                ps = conn.prepareStatement(sql);
+                ps.setString(1, penulis);
+                ps.setInt(2, id);
+                ps.execute();
+                
                 System.out.println("Data berhasil di update.");
             } else {
                 System.out.println("No data tidak ditemukan dengan ID buku : " + id);
@@ -156,13 +168,18 @@ public class latihan1 {
             connect();
             System.out.print("Masukkan ID Buku yang ingin dihapus: ");
             int id = getInputInt(scanner);
-            scanner.nextLine(); 
+            scanner.nextLine(); // Consume newline
             
             String sql = "DELETE FROM buku WHERE id = ?";
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             int rows = ps.executeUpdate();
             if (rows > 0) {
+                sql = "DELETE FROM penulis WHERE id = ?";
+                ps = conn.prepareStatement(sql);
+                ps.setInt(1, id);
+                ps.executeUpdate();
+                
                 System.out.println("Data deleted successfully.");
             } else {
                 System.out.println("No data found with ID Buku: " + id);
@@ -177,7 +194,8 @@ public class latihan1 {
     public static void show() {
         try {
             connect();
-            String sql = "SELECT * FROM buku";
+            String sql = "SELECT b.id, b.judul_buku, b.tahun, b.stok, p.nama_penulis " +
+                         "FROM buku b LEFT JOIN penulis p ON b.id = p.id";
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             int i = 1;
@@ -187,7 +205,7 @@ public class latihan1 {
                 System.out.println("Judul Buku: " + rs.getString("judul_buku"));
                 System.out.println("Tahun: " + rs.getInt("tahun"));
                 System.out.println("Stok: " + rs.getInt("stok"));
-                System.out.println("Penulis: " + rs.getString("penulis"));
+                System.out.println("Penulis: " + rs.getString("nama_penulis"));
                 i++;
             }
         } catch (Exception e) {

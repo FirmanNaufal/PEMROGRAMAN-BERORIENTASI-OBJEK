@@ -2,7 +2,7 @@ package kalkulator;
 
 /**
  *
- * @author Firman Naufal Arya
+ * @author Firman Naufal Aryaputra
  */
 public class KalkulatorSederhana extends javax.swing.JFrame {
 
